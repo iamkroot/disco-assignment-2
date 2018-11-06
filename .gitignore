@@ -1,0 +1,7 @@
+*.in
+*.o
+*.out
+main
+main.c
+*.sublime-workspace
+*.sublime-project
