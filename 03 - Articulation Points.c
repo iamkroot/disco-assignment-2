@@ -20,16 +20,6 @@ void append(node** head, int v){
     newnode->next=t;
 }
 
-int checkmember(node** head, int v){
-    node* cursor = *head;
-    while(cursor){
-        if(v==cursor->data)
-            return 1;
-        cursor = cursor->next;
-    }
-    return 0;
-}
-
 int time = 1;
 node* critical;
 
