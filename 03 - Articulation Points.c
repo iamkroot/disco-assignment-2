@@ -20,30 +20,36 @@ void append(node** head, int v){
     newnode->next=t;
 }
 
+
+int checkmember(node* head, int v) {
+    for(;head;head=head->next){
+        if(head->data==v)
+            return 1;
+    }
+    return 0;
+}
+
 int time = 1;
 node* critical;
 
 void find_critical_nodes(node* adjlst[], int disc[], int visited[], int low[], int parent[], int v=0) {
     visited[v] = 1;
-    disc[v] = low[v] = time;
+    disc[v] = low[v] = time++;
     int child_count = 0;
-    node* connected_node = adjlst[v];
-    while(connected_node){
+    for(node* connected_node = adjlst[v];connected_node;connected_node = connected_node->next){
         int i = connected_node->data;
         if(!visited[i]){
             child_count++;
             parent[i] = v;
-            time++;
             find_critical_nodes(adjlst, disc, visited, low, parent, i);
             low[v] = low[i]<low[v]?low[i]:low[v];
-            if((parent[v]==-1 && child_count>1)||(parent[v]!=-1 && low[i]>=disc[v])){
+            if((parent[v]==-1 && child_count>1)||(parent[v]!=-1 && low[i]>=disc[v])&&!checkmember(critical, v)){
                 append(&critical, v);
             }
         }
         else if(parent[v] != i) {
             low[v] = ((low[v]==-1)||(disc[i]<=low[v]))?disc[i]:low[v];
         }
-        connected_node = connected_node->next;
     }
 }
 
@@ -63,6 +69,31 @@ int main(int argc, char const *argv[]) {
         append(&(adjlst[b]), a);
     }
     find_critical_nodes(adjlst, disc, visited, low, parent, 0);
+    int num_undiscovered_nodes = 0, first_node;
+    for(int i=0; i<n; i++){
+        if(low[i]<0){
+            num_undiscovered_nodes++;
+            first_node = i;
+        }
+    }
+    if(num_undiscovered_nodes==1){
+        critical = NULL;
+        for(int i=0; i<n; i++){
+            if(i!=first_node){
+                append(&critical, i);
+            }
+        }
+    }
+    else if(num_undiscovered_nodes>1){
+        critical = NULL;
+        for(int i=0; i<n; i++){
+            append(&critical, i);
+        }
+    }
+    if(!critical){
+        printf("No critical point.\n");
+        return 0;
+    }
     while(critical){
         printf("%d ", critical->data);
         critical = critical->next;
